@@ -1,0 +1,24 @@
+packages:
+  "framer-motion": "For premium gaming animations and transitions"
+  "qrcode.react": "To render the ABA KHQR code string as an actual QR code image"
+  "clsx": "For conditional tailwind classes"
+  "tailwind-merge": "For merging tailwind classes"
+
+images:
+  - path: "artifacts/nokormc/public/images/hero-bg.png"
+    description: "Dark abstract gaming background with neon purple and blue glowing geometric shapes, high contrast, 4k"
+    aspect_ratio: "16:9"
+  - path: "artifacts/nokormc/public/images/mlbb-banner.png"
+    description: "Mobile Legends Bang Bang style dramatic fantasy battle banner with glowing neon elements, high quality"
+    aspect_ratio: "16:9"
+  - path: "artifacts/nokormc/public/images/freefire-banner.png"
+    description: "Free Fire style battle royale action scene banner, warm vibrant colors, high contrast"
+    aspect_ratio: "16:9"
+  - path: "artifacts/nokormc/public/images/license-banner.png"
+    description: "Premium digital software license card, gold and black theme, glowing, highly detailed"
+    aspect_ratio: "16:9"
+
+notes:
+  - The backend API client is at @workspace/api-client-react
+  - wouter is used for routing
+  - We use qrcode.react to render the KHQR returned by the payment API
