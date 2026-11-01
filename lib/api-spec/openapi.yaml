@@ -1,0 +1,359 @@
+openapi: 3.1.0
+info:
+  title: Api
+  version: 0.1.0
+  description: NOKORMC Top Up Store API
+servers:
+  - url: /api
+    description: Base API path
+tags:
+  - name: health
+    description: Health operations
+  - name: topup
+    description: Top up operations
+  - name: payment
+    description: Payment operations
+paths:
+  /healthz:
+    get:
+      operationId: healthCheck
+      tags: [health]
+      summary: Health check
+      description: Returns server health status
+      responses:
+        "200":
+          description: Healthy
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/HealthStatus"
+  /topup/verify-id:
+    post:
+      operationId: verifyPlayerId
+      tags: [topup]
+      summary: Verify player ID
+      description: Verify if a game player ID is valid
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/VerifyPlayerIdRequest"
+      responses:
+        "200":
+          description: Player ID verification result
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/VerifyPlayerIdResponse"
+        "400":
+          description: Invalid request
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ErrorResponse"
+  /topup/products:
+    get:
+      operationId: getProducts
+      tags: [topup]
+      summary: Get top-up products
+      description: Get list of available top-up products for a game
+      parameters:
+        - name: game
+          in: query
+          required: true
+          schema:
+            type: string
+            enum: [mlbb, freefire]
+      responses:
+        "200":
+          description: List of products
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ProductListResponse"
+  /payment/create:
+    post:
+      operationId: createPayment
+      tags: [payment]
+      summary: Create payment
+      description: Create a payment order with ABA QR
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/CreatePaymentRequest"
+      responses:
+        "200":
+          description: Payment created
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/CreatePaymentResponse"
+        "400":
+          description: Invalid request
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ErrorResponse"
+  /payment/check/{transactionId}:
+    get:
+      operationId: checkPaymentStatus
+      tags: [payment]
+      summary: Check payment status
+      description: Check the status of a payment transaction
+      parameters:
+        - name: transactionId
+          in: path
+          required: true
+          schema:
+            type: string
+      responses:
+        "200":
+          description: Payment status
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/PaymentStatusResponse"
+  /orders:
+    post:
+      operationId: createOrder
+      tags: [topup]
+      summary: Create top-up order
+      description: Create a new top-up order
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/CreateOrderRequest"
+      responses:
+        "201":
+          description: Order created
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Order"
+    get:
+      operationId: getOrders
+      tags: [topup]
+      summary: Get orders
+      description: Get list of orders
+      responses:
+        "200":
+          description: List of orders
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: "#/components/schemas/Order"
+components:
+  schemas:
+    HealthStatus:
+      type: object
+      properties:
+        status:
+          type: string
+      required:
+        - status
+    VerifyPlayerIdRequest:
+      type: object
+      properties:
+        game:
+          type: string
+          enum: [mlbb, freefire]
+        playerId:
+          type: string
+        serverId:
+          type: string
+      required:
+        - game
+        - playerId
+    VerifyPlayerIdResponse:
+      type: object
+      properties:
+        valid:
+          type: boolean
+        playerName:
+          type: string
+        playerId:
+          type: string
+        serverId:
+          type: string
+      required:
+        - valid
+        - playerId
+    ProductListResponse:
+      type: object
+      properties:
+        game:
+          type: string
+        products:
+          type: array
+          items:
+            $ref: "#/components/schemas/Product"
+      required:
+        - game
+        - products
+    Product:
+      type: object
+      properties:
+        id:
+          type: string
+        name:
+          type: string
+        amount:
+          type: number
+        price:
+          type: number
+        currency:
+          type: string
+        bonus:
+          type: string
+        image:
+          type: string
+      required:
+        - id
+        - name
+        - amount
+        - price
+        - currency
+    CreatePaymentRequest:
+      type: object
+      properties:
+        amount:
+          type: number
+        currency:
+          type: string
+        orderId:
+          type: string
+        description:
+          type: string
+        firstName:
+          type: string
+        lastName:
+          type: string
+        email:
+          type: string
+        phone:
+          type: string
+      required:
+        - amount
+        - currency
+        - orderId
+        - description
+    CreatePaymentResponse:
+      type: object
+      properties:
+        transactionId:
+          type: string
+        qrCode:
+          type: string
+        deeplink:
+          type: string
+        amount:
+          type: number
+        currency:
+          type: string
+        status:
+          type: string
+      required:
+        - transactionId
+        - qrCode
+        - amount
+        - currency
+        - status
+    PaymentStatusResponse:
+      type: object
+      properties:
+        transactionId:
+          type: string
+        status:
+          type: string
+          enum: [pending, success, failed, expired]
+        amount:
+          type: number
+        currency:
+          type: string
+        paidAt:
+          type: string
+      required:
+        - transactionId
+        - status
+        - amount
+        - currency
+    CreateOrderRequest:
+      type: object
+      properties:
+        game:
+          type: string
+          enum: [mlbb, freefire]
+        playerId:
+          type: string
+        serverId:
+          type: string
+        playerName:
+          type: string
+        productId:
+          type: string
+        amount:
+          type: number
+        price:
+          type: number
+        transactionId:
+          type: string
+      required:
+        - game
+        - playerId
+        - productId
+        - amount
+        - price
+    Order:
+      type: object
+      properties:
+        id:
+          type: integer
+        game:
+          type: string
+        playerId:
+          type: string
+        serverId:
+          type: string
+        playerName:
+          type: string
+        productId:
+          type: string
+        productName:
+          type: string
+        amount:
+          type: number
+        price:
+          type: number
+        status:
+          type: string
+          enum: [pending, processing, completed, failed]
+        transactionId:
+          type: string
+        createdAt:
+          type: string
+      required:
+        - id
+        - game
+        - playerId
+        - productId
+        - amount
+        - price
+        - status
+        - createdAt
+    ErrorResponse:
+      type: object
+      properties:
+        error:
+          type: string
+        message:
+          type: string
+      required:
+        - error
+        - message
